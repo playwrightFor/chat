@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #messages {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fafafa;
+        }
+        .message {
+            margin: 5px 0;
+        }
+        input[type="text"] {
+            width: calc(100% - 100px);
+            padding: 10px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        input[type="text"], select {
+            margin-bottom: 10px;
+        }
+
+        button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <h1>Чат</h1>
+    <div>
+        <input type="text" id="username" placeholder="Ваше имя">
+        <select id="room">
+            <option value="public">Публичная комната</option>
+            <option value="private">Приватная комната</option>
+        </select>
+        <button onclick="connect()">Подключиться</button>
+        <button onclick="showHistory()">История сообщений</button>
+    </div>
+    <div id="chat" style="display:none;">
+        <input type="text" id="message" placeholder="Сообщение">
+        <button onclick="send()">Отправить</button>
+        <div id="messages"></div>
+    </div>
+</div>
+
+<script>
+    let ws;
+    let username;
+    let messageHistory = [];
+
+    function connect() {
+        if (ws) {
+            alert('Вы уже подключены!');
+            return;
+        }
+
+        username = document.getElementById('username').value;
+        const room = document.getElementById('room').value;
+        ws = new WebSocket(`ws://localhost:1401/chat?room=${room}`);
+        ws.onopen = () => {
+            ws.send(`LOGIN:${username} в комнате ${room}`);
+            document.getElementById('chat').style.display = 'block';
+        };
+
+        ws.onmessage = (event) => {
+            const messages = document.getElementById('messages');
+            messages.innerHTML += `<div class="message">${event.data}</div>`;
+            messages.scrollTop = messages.scrollHeight;
+            messageHistory.push(event.data);
+
+            if (!document.hasFocus()) {
+                new Notification("Новое сообщение", {
+                    body: event.data
+                });
+            }
+        };
+
+        ws.onclose = () => {
+            alert('Соединение закрыто');
+            ws = null;
+        };
+    }
+
+    function send() {
+        const message = document.getElementById('message').value;
+        if (message.trim() !== "") {
+            ws.send(message);
+            messageHistory.push(`${username}: ${message}`);
+            document.getElementById('message').value = '';
+        }
+    }
+
+    function showHistory() {
+        const historyWindow = window.open("", "История сообщений", "width=400,height=600");
+        historyWindow.document.write("<h1>История сообщений</h1><ul>");
+        messageHistory.forEach(msg => {
+            historyWindow.document.write(`<li>${msg}</li>`);
+        });
+        historyWindow.document.write("</ul>");
+    }
+
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
+</script>
+</body>
+</html>
+
