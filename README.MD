@@ -35,12 +35,11 @@
 
 `java -cp target/chat-app.jar server.Start` или запустите по клику на `Run`
 
-Приложение начнет слушать на порту 1400.
+Приложение начнет слушать на порту 1401.
 
-Далее, запустите файл index.html в ручную, или кликните по ссылке ниже!
 
 ## Использование
-Откройте браузер и перейдите по адресу [http://localhost:1400/chat](http://localhost:63342/websocketchat/static/index.html?_ijt=2edvcc3900ue2e5oper4vgpe5j&_ij_reload=RELOAD_ON_SAVE).
+Откройте браузер и перейдите по адресу [http://localhost:1401/chat](http://localhost:63342/websocketchat/src/main/resources/static/index.html?_ijt=75uf27adpepbiv0alho72p669g&_ij_reload=RELOAD_ON_SAVE).
 Введите свой логин в формате LOGIN:ваш_логин.
 После успешной авторизации вы сможете отправлять сообщения, которые будут видны всем пользователям в чате.
 Для отправки личного сообщения используйте формат @логин_получателя ваше_сообщение.
