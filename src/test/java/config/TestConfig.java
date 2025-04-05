@@ -1,8 +1,30 @@
 package config;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+/**
+ * Утилитарный класс для доступа к тестовым настройкам.
+ * Параметры (базовый URL, пути) загружаются из config.properties.
+ * Селекторы загружаются, из самого класса TestConfig.
+ */
 public class TestConfig {
+    private static final Properties props = new Properties();
+
+    static {
+        try (InputStream input = TestConfig.class.getClassLoader().getResourceAsStream("config.properties")) {
+            if (input == null) throw new RuntimeException("Файл config.properties не найден");
+            props.load(input);
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка загрузки конфига", e);
+        }
+    }
+
     public static String getPageUrl(int port) {
-        return "http://localhost:" + port + "/index.html";
+        String base = props.getProperty("base.url");
+        String path = props.getProperty("page.path");
+        return base + ":" + port + path;
     }
 
     public static final String USERNAME_FIELD = "#username";
